@@ -100,8 +100,8 @@ class PromptAssistant(QMainWindow):
     def attach_folder(self):
         """
         Opens a folder selection dialog. Recursively goes through all files in the selected folder, 
-        skipping hidden files/folders (those starting with a dot). Each file is read and stored, 
-        and a relative path (to the selected folder) is shown in the list.
+        skipping hidden files/folders (those starting with a dot) and files that contain "tfstate" in their names.
+        Each file is read and stored, and a relative path (to the selected folder) is shown in the list.
         """
         folder = QFileDialog.getExistingDirectory(
             self,
@@ -113,8 +113,9 @@ class PromptAssistant(QMainWindow):
                 # Skip hidden folders
                 dirs[:] = [d for d in dirs if not d.startswith('.')]
                 for file in files:
-                    if file.startswith('.'):
-                        continue  # Skip hidden files
+                    # Pomijamy ukryte pliki oraz te, które zawierają "tfstate" (np. terraform.tfstate, terraform.tfstate.backup)
+                    if file.startswith('.') or "tfstate" in file:
+                        continue  # Skip hidden files and files containing "tfstate"
                     file_path = os.path.join(root, file)
                     if os.path.isfile(file_path):
                         try:
@@ -127,6 +128,7 @@ class PromptAssistant(QMainWindow):
                         except Exception as e:
                             # If the file cannot be read, skip it
                             pass
+
 
     def copy_text(self):
         """
